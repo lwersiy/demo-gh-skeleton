@@ -16,6 +16,11 @@ delete_remote_tag() {
   git push origin --delete "v$STANDARD_INITIAL_VERSION"
 }
 
+# Function to check if the repository exists
+check_repo_exists() {
+  git ls-remote "$NEW_REPO_URL" &> /dev/null
+}
+
 # Check for proper arguments
 if [ "$#" -lt 2 ]; then
   usage
@@ -31,8 +36,29 @@ cd new-gh-skeleton-repo || { echo "Failed to enter directory!"; exit 1; }
 # Remove Git history and reinitialize
 rm -rf .git && git init || { echo "Failed to initialize repo!"; exit 1; }
 
-# Always set the version to a new standard initial version (e.g., 0.0.1)
+# Set the version to a new standard initial version
 STANDARD_INITIAL_VERSION="0.0.1"
+echo "$STANDARD_INITIAL_VERSION" > version.txt
+
+# Commit the new initial version to the repo
+git add .
+git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION" || { echo "Commit failed!"; exit 1; }
+
+# Add the new remote repository
+git remote add origin "$NEW_REPO_URL"
+
+# Verify remote URL is set correctly
+REMOTE_URL=$(git remote get-url origin)
+if [ -z "$REMOTE_URL" ]; then
+  echo "Error: Remote URL 'origin' not set properly."
+  exit 1
+fi
+
+# Test connection to the remote repository
+if ! git ls-remote "$NEW_REPO_URL" &> /dev/null; then
+  echo "Error: Could not connect to the remote repository at $NEW_REPO_URL."
+  exit 1
+fi
 
 # Check if the tag already exists in the remote repo
 if check_tag_exists; then
@@ -50,17 +76,8 @@ if check_tag_exists; then
   fi
 fi
 
-echo "$STANDARD_INITIAL_VERSION" > version.txt
-
-# Commit the new initial version to the repo
-git add .
-git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION" || { echo "Commit failed!"; exit 1; }
-
 # Add a tag with the (new or initial) version
 git tag "v$STANDARD_INITIAL_VERSION"
-
-# Add the new remote repository
-git remote add origin "$NEW_REPO_URL"
 
 # Push the initial commit and tag to the new remote repository
 git push -u origin master || { echo "Pushing to master failed!"; exit 1; }
@@ -68,8 +85,3 @@ git push origin "v$STANDARD_INITIAL_VERSION" || { echo "Pushing tag failed!"; ex
 
 # Output the new version
 echo "Repository cloned, cleaned, and initialized with version $STANDARD_INITIAL_VERSION"
-
-# # To run this script, first make it executable:
-# "chmod +x bump_version.sh"
-# # Run the script with the existing URL and the new URL:
-# "./bump_version.sh https://github.com/username/existing-repo.git https://github.com/your-username/new-repo.git"
