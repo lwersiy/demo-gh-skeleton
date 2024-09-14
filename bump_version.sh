@@ -80,8 +80,19 @@ fi
 git tag "v$STANDARD_INITIAL_VERSION"
 
 # Push the initial commit and tag to the new remote repository
-git push -u origin master || { echo "Pushing to master failed!"; exit 1; }
-git push origin "v$STANDARD_INITIAL_VERSION" || { echo "Pushing tag failed!"; exit 1; }
+if ! git push -u origin develop; then
+  echo "Pushing to develop failed! Checking for updates..."
+  git fetch origin
+  git merge origin/develop || { echo "Failed to merge changes from remote!"; exit 1; }
+  git push -u origin develop || { echo "Failed to push after merging!"; exit 1; }
+fi
+
+# Push the tag
+if ! git push origin "v$STANDARD_INITIAL_VERSION"; then
+  echo "Pushing tag failed! Checking for tag conflicts..."
+  git push origin --delete "v$STANDARD_INITIAL_VERSION" || { echo "Failed to delete conflicting tag!"; exit 1; }
+  git push origin "v$STANDARD_INITIAL_VERSION" || { echo "Failed to push new tag!"; exit 1; }
+fi
 
 # Output the new version
 echo "Repository cloned, cleaned, and initialized with version $STANDARD_INITIAL_VERSION"
