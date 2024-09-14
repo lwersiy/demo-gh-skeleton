@@ -2,20 +2,20 @@
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 existing-repo-url new-repo-url"
-    exit 1
+  echo "Usage: $0 existing-repo-url new-repo-url"
+  exit 1
 }
 
 # Check for proper arguments
 if [ "$#" -lt 2 ]; then
-    usage
+  usage
 fi
 
 EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
 # Clone the existing repo and start fresh
-git clone "$EXISTING_REPO_URL" new-repo && cd new-repo && rm -rf .git && git init
+git clone "$EXISTING_REPO_URL" new-gh-skeleton-repo && cd new-gh-skeleton-repo && rm -rf .git && git init
 
 # Always set the version to a new standard initial version (e.g., 0.0.1)
 STANDARD_INITIAL_VERSION="0.0.1"
