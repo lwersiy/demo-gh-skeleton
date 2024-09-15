@@ -1,0 +1,41 @@
+name: Create Remote Repository and Run bump_version.sh
+
+on:
+  workflow_dispatch:  # Trigger manually
+
+jobs:
+  create-repo-and-bump-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v3
+
+      - name: Set up GitHub PAT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
+        run: echo "Using GitHub PAT"
+
+      - name: Create a New Remote Repository via GitHub API
+        run: |
+          NEW_REPO_NAME="new-repo-from-action"
+          curl -H "Authorization: token $GITHUB_TOKEN" \
+               -d "{\"name\":\"$NEW_REPO_NAME\"}" \
+               https://api.github.com/user/repos
+          echo "New repository created: https://github.com/${{ github.actor }}/$NEW_REPO_NAME.git"
+      
+      - name: Clone the New Remote Repository
+        run: |
+          git clone https://github.com/${{ github.actor }}/new-repo-from-action.git
+          cd new-repo-from-action
+
+      - name: Run bump_version.sh Script
+        run: |
+          chmod +x ./bump_version.sh
+          ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git https://github.com/${{ github.actor }}/new-repo-from-action.git
+
+      - name: Push to develop Branch
+        run: |
+          cd new-repo-from-action
+          git checkout -b develop
+          git push -u origin develop
