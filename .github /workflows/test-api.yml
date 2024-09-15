@@ -1,0 +1,16 @@
+name: Test API Request
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-api-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test GitHub API Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
+        run: |
+          curl -H "Authorization: token $GITHUB_TOKEN" \
+               https://api.github.com/user
