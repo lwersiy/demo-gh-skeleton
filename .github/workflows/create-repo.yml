@@ -13,7 +13,7 @@ jobs:
 
       - name: Set up GitHub PAT
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
         run: echo "Using GitHub PAT"
 
       - name: Create a New Remote Repository via GitHub API
@@ -43,4 +43,4 @@ jobs:
       - name: Run bump_version.sh Script
         run: |
           chmod +x ./bump_version.sh
-          ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
+          ./bump_version.sh https://github.com/username/existing-repo.git $REPO_URL
