@@ -33,9 +33,4 @@ jobs:
         run: |
           chmod +x ./bump_version.sh
           ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git https://github.com/${{ github.actor }}/new-repo-from-action.git
-
-      - name: Push to develop Branch
-        run: |
-          cd new-repo-from-action
-          git checkout -b develop
-          git push -u origin develop
+          
