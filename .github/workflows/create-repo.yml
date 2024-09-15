@@ -40,7 +40,7 @@ jobs:
           git clone "$REPO_URL"
           cd new-repo-from-action
 
-      # - name: Run bump_version.sh Script
-      #   run: |
-      #     chmod +x ./bump_version.sh
-      #     ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
+      - name: Run bump_version.sh Script
+        run: |
+          chmod +x ./bump_version.sh
+          ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
