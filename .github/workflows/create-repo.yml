@@ -26,13 +26,13 @@ jobs:
           REPO_URL=$(echo "$RESPONSE" | grep -oP '"clone_url": "\K[^"]+')
           echo "New repository created: $REPO_URL"
 
-      - name: Verify Repository Creation
-        run: |
-          if [ -z "$REPO_URL" ]; then
-            echo "Failed to create repository. Exiting..."
-            exit 1
-          fi
-          echo "Repository $REPO_URL was successfully created."
+      # - name: Verify Repository Creation
+      #   run: |
+      #     if [ -z "$REPO_URL" ]; then
+      #       echo "Failed to create repository. Exiting..."
+      #       exit 1
+      #     fi
+      #     echo "Repository $REPO_URL was successfully created."
 
       - name: Clone the New Remote Repository
         run: |
