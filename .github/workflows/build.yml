@@ -161,6 +161,8 @@ jobs:
 
       - name: Run bump_version.sh Script
         run: |
+          echo "Current directory before chmod: $(pwd)"
+          ls -la
           chmod +x bump_version.sh
           ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
 
