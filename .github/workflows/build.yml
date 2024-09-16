@@ -125,6 +125,10 @@ jobs:
       #   run: pre-commit run --all-files
 
       # New steps for creating a repository and running the script
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Create a New Repository
         env:
           GH_TOKEN: ${{ secrets.MY_PAT }}
@@ -153,10 +157,15 @@ jobs:
           git clone "$REPO_URL"
           cd new-repo-from-action
 
+      - name: Set Up Git User Info
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
       - name: Run bump_version.sh Script
         run: |
           chmod +x bump_version.sh
-          bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
+          ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
 
       # - name: Setup tmate debug session
       #   uses: mxschmitt/action-tmate@v3
