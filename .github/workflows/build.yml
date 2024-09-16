@@ -126,14 +126,14 @@ jobs:
 
       # New steps for creating a repository and running the script
 
-      - name: Checkout Repository
+      - name: Checkout the repository
         uses: actions/checkout@v4
 
       - name: Create a New Repository
         env:
           GH_TOKEN: ${{ secrets.MY_PAT }}
         run: |
-          NEW_REPO_NAME="new-repo-from-action"
+          NEW_REPO_NAME="gh-skeleton-new"
           RESPONSE=$(curl -s -H "Authorization: token $GH_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                -d "{\"name\":\"$NEW_REPO_NAME\"}" \
@@ -154,15 +154,11 @@ jobs:
       - name: Clone the New Remote Repository
         run: |
           echo "Cloning $REPO_URL..."
-          git clone "$REPO_URL"
-          cd new-repo-from-action
-          echo "Current directory: $(pwd)"
-          ls -la
+          git clone "$REPO_URL" gh-skeleton-new
+          cd gh-skeleton-new
 
       - name: Run bump_version.sh Script
         run: |
-          echo "Current directory before chmod: $(pwd)"
-          ls -la
           chmod +x bump_version.sh
           ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
 
