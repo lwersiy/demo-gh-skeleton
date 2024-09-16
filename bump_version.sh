@@ -14,10 +14,10 @@ fi
 EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
-# Clone the existing repo and start fresh
-git clone "$EXISTING_REPO_URL" new-repo && cd new-repo && rm -rf .git && git init
+# Clone the existing repo into a directory named new-repo-from-action
+git clone "$EXISTING_REPO_URL" new-repo-from-action && cd new-repo-from-action && rm -rf .git && git init
 
-# Always set the version to a new standard initial version (e.g., 0.0.1)
+# Set the standard initial version
 STANDARD_INITIAL_VERSION="0.0.1"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 
@@ -31,14 +31,9 @@ git tag "v$STANDARD_INITIAL_VERSION"
 # Add the new remote repository
 git remote add origin "$NEW_REPO_URL"
 
-# Push the initial commit and tag to the new remote repository
+# Push the initial commit and tag to the new remote repository on the 'develop' branch
 git push -u origin develop
 git push origin "v$STANDARD_INITIAL_VERSION"
 
 # Output the new version
 echo "Repository cloned, cleaned, and initialized with version $STANDARD_INITIAL_VERSION"
-
-# # To run this script, first make it executable:
-# "chmod +x bump_version.sh"
-# # Run the script with the existing URL and the new URL:
-# "./bump_version.sh https://github.com/username/existing-repo.git https://github.com/your-username/new-repo.git"
