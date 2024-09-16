@@ -151,17 +151,15 @@ jobs:
           fi
           echo "Repository $REPO_URL was successfully created."
 
-      - name: Debug Repository Contents
-        run: |
-          echo "Debugging repository content..."
-          git ls-remote "$REPO_URL"
+      - name: Wait for Repository Setup
+        run: sleep 10  # Wait for 10 seconds to ensure the repository is fully set up
 
       - name: Clone the New Remote Repository
         run: |
           echo "Cloning $REPO_URL..."
           git clone "$REPO_URL" gh-skeleton-new
           cd gh-skeleton-new
-          echo "Directory contents:"
+          echo "Directory contents after cloning:"
           ls -la
 
       - name: Run bump_version.sh Script
