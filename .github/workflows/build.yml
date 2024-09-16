@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - develop
-
   workflow_dispatch:
 
 jobs:
@@ -134,6 +133,7 @@ jobs:
       # New steps for creating a repository and running the script
 
       - uses: actions/checkout@v3
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -144,9 +144,6 @@ jobs:
 
       - name: Run tests
         run: npm test
-
-      - name: Checkout Repository
-        uses: actions/checkout@v4
 
       - name: Create a New Repository
         env:
@@ -159,27 +156,23 @@ jobs:
                https://api.github.com/user/repos)
           echo "$RESPONSE"
           REPO_URL=$(echo "$RESPONSE" | grep -oP '"clone_url": "\K[^"]+')
-          echo "New repository created: $REPO_URL"
-          echo "REPO_URL=$REPO_URL" >> $GITHUB_ENV
-
-      - name: Verify Repository Creation
-        run: |
           if [ -z "$REPO_URL" ]; then
             echo "Failed to create repository. Exiting..."
             exit 1
           fi
-          echo "Repository $REPO_URL was successfully created."
+          echo "New repository created: $REPO_URL"
+          echo "REPO_URL=$REPO_URL" >> $GITHUB_ENV
 
       - name: Clone the New Remote Repository
         run: |
-          echo "Cloning $REPO_URL..."
-          git clone "$REPO_URL"
+          echo "Cloning ${{ env.REPO_URL }}..."
+          git clone "${{ env.REPO_URL }}"
           cd gh-skeleton-new
 
       - name: Run bump_version.sh Script
         run: |
          chmod +x bump_version.sh
-         ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
+         ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git ${{ env.REPO_URL }}
 
       # - name: Setup tmate debug session
       #   uses: mxschmitt/action-tmate@v3
