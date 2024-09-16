@@ -1,6 +1,13 @@
-name: Build and Setup
+name: Build and CI
 
 on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
   workflow_dispatch:
 
 jobs:
@@ -126,9 +133,21 @@ jobs:
 
       # New steps for creating a repository and running the script
 
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
       - name: Checkout Repository
         uses: actions/checkout@v4
-        
+
       - name: Create a New Repository
         env:
           GH_TOKEN: ${{ secrets.MY_PAT }}
@@ -161,7 +180,7 @@ jobs:
         run: |
          chmod +x bump_version.sh
          ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
-          
+
       # - name: Setup tmate debug session
       #   uses: mxschmitt/action-tmate@v3
       #   if: env.RUN_TMATE
