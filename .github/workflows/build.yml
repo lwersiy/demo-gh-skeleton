@@ -145,6 +145,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: List files in the current directory
+        run: ls -al
+
       - name: Create a New Repository
         env:
           GH_TOKEN: ${{ secrets.MY_PAT }}
