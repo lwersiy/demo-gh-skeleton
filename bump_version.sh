@@ -14,12 +14,18 @@ fi
 EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
-# Clone the existing repo into a directory named gh-skeleton
-echo "Cloning the existing repository..."
-git clone "$EXISTING_REPO_URL" gh-skeleton
+# Clone the existing repo into a directory named gh-skeleton-new
+echo "Cloning the existing repository from $EXISTING_REPO_URL..."
+git clone "$EXISTING_REPO_URL" gh-skeleton-new
+
+# Check if the cloning was successful
+if [ ! -d "gh-skeleton-new" ]; then
+  echo "Cloning failed or directory 'gh-skeleton-new' was not created."
+  exit 1
+fi
 
 # Change to the repository directory
-cd gh-skeleton || { echo "Failed to enter the directory."; exit 1; }
+cd gh-skeleton-new || { echo "Failed to enter the 'gh-skeleton-new' directory."; exit 1; }
 
 # Remove existing git metadata and initialize a new repository
 echo "Reinitializing repository..."
