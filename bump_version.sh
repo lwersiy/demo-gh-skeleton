@@ -15,7 +15,7 @@ EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
 # Clone the existing repo into a directory named new-repo-from-action
-git clone "$EXISTING_REPO_URL" gh-skeleton-new && cd gh-skeleton-new && rm -rf .git && git init
+git clone "$EXISTING_REPO_URL" new-repo-from-action && cd new-repo-from-action && rm -rf .git && git init
 
 # Force the version to be 0.0.1 for the new repo
 STANDARD_INITIAL_VERSION="0.0.1"
