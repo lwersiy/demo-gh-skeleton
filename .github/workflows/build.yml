@@ -151,17 +151,24 @@ jobs:
           fi
           echo "Repository $REPO_URL was successfully created."
 
+      - name: Debug Repository Contents
+        run: |
+          echo "Debugging repository content..."
+          git ls-remote "$REPO_URL"
+
       - name: Clone the New Remote Repository
         run: |
           echo "Cloning $REPO_URL..."
           git clone "$REPO_URL" gh-skeleton-new
           cd gh-skeleton-new
+          echo "Directory contents:"
+          ls -la
 
       - name: Run bump_version.sh Script
         run: |
           chmod +x bump_version.sh
           ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git $REPO_URL
-
+          
       # - name: Setup tmate debug session
       #   uses: mxschmitt/action-tmate@v3
       #   if: env.RUN_TMATE
