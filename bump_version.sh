@@ -28,9 +28,9 @@ fi
 cd gh-skeleton-new || { echo "Failed to enter the 'gh-skeleton-new' directory."; exit 1; }
 
 # Remove existing git metadata and initialize a new repository
-# echo "Reinitializing repository..."
-# rm -rf .git
-# git init
+echo "Reinitializing repository..."
+rm -rf .git
+git init
 
 # Set the standard initial version
 STANDARD_INITIAL_VERSION="0.0.1"
