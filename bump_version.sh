@@ -15,16 +15,25 @@ EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
 # Clone the existing repo into a directory named gh-skeleton
-git clone "$EXISTING_REPO_URL" gh-skeleton && cd gh-skeleton && rm -rf .git && git init
+echo "Cloning the existing repository..."
+git clone "$EXISTING_REPO_URL" gh-skeleton
+
+# Change to the repository directory
+cd gh-skeleton || { echo "Failed to enter the directory."; exit 1; }
+
+# Remove existing git metadata and initialize a new repository
+echo "Reinitializing repository..."
+rm -rf .git
+git init
 
 # Set the standard initial version
 STANDARD_INITIAL_VERSION="0.0.1"
 
-# Output the initial version
+# Output the initial version to a file
 echo "Using version: v$STANDARD_INITIAL_VERSION"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 
-# Commit the new initial version to the repo
+# Stage and commit the new version
 git add .
 git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION"
 
@@ -32,10 +41,14 @@ git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION"
 git tag "v$STANDARD_INITIAL_VERSION"
 
 # Add the new remote repository
+echo "Adding new remote repository..."
 git remote add origin "$NEW_REPO_URL"
 
-# Push the initial commit and tag to the new remote repository on the 'develop' branch
+# Create and switch to the 'develop' branch
 git checkout -b develop
+
+# Push the initial commit and tag to the new remote repository
+echo "Pushing to the new repository..."
 git push -u origin develop
 git push origin "v$STANDARD_INITIAL_VERSION"
 
