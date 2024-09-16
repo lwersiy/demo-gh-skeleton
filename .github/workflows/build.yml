@@ -15,7 +15,7 @@ jobs:
           egress-policy: audit
 
       - name: Setup environment
-        uses: lwersiy/setup-env-github-action@develop
+        uses: cicagov/setup-env-github-action@develop
 
       - uses: actions/checkout@v4
 
