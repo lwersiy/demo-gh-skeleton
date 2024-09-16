@@ -126,6 +126,9 @@ jobs:
 
       # New steps for creating a repository and running the script
 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
       - name: Create a New Repository
         env:
           GH_TOKEN: ${{ secrets.MY_PAT }}
