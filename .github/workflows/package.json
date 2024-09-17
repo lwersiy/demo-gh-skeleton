@@ -1,13 +1,13 @@
 {
   "name": "gh-skeleton",
   "version": "1.0.0",
-  "description": "[![GitHub Build Status](https://github.com/lwersiy/gh-skeleton/workflows/build/badge.svg)](https://github.com/lwersiy/gh-skeleton/actions)",
+  "description": "versioning",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No test specified\" && exit 0"
   },
   "keywords": [],
-  "author": "",
+  "author": "Louis Wersiy",
   "license": "ISC"
 }
 
