@@ -11,41 +11,59 @@ if [ "$#" -lt 2 ]; then
   usage
 fi
 
+# Variables for existing and new repository URLs
 EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
-# Clone the existing repository
-git clone "$EXISTING_REPO_URL" new-gh-skeleton && cd new-gh-skeleton
+# Clone the existing repository into a new directory
+git clone "$EXISTING_REPO_URL" new-gh-skeleton || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
 
-# Remove old git history and reinitialize a new repository
-rm -rf .git && git init
+# Move into the newly created directory
+cd new-gh-skeleton || { echo "Failed to enter new-gh-skeleton directory"; exit 1; }
 
-# Set up the default branch to 'develop' instead of 'master'
-git checkout -b develop
+# Remove the existing .git directory and reinitialize the Git repository
+rm -rf .git && git init || { echo "Failed to initialize new git repo"; exit 1; }
 
-# Add all files from the cloned repository to the new Git history
-git add .
+# Verify that files are present in the directory
+echo "Verifying files in directory..."
+ls -al
 
-# Commit the files from the original repository
-git commit -m "Initial commit with version 0.0.1"
-
-# Create a version file with an initial version
+# Create a version file with an initial version if needed
 STANDARD_INITIAL_VERSION="0.0.1"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 
-# Stage and commit the version.txt file
-git add version.txt
-git commit -m "Add version.txt with initial version $STANDARD_INITIAL_VERSION"
+# Ensure the develop branch exists or create it if it doesn't
+git checkout -b develop || git checkout develop || { echo "Failed to create or switch to develop branch"; exit 1; }
 
-# Add a tag with the new version v0.0.1
-git tag "v$STANDARD_INITIAL_VERSION"
+# Add all files to the staging area
+git add .
 
-# Add the new remote repository
-git remote add origin "$NEW_REPO_URL"
+# Check the status to verify that files are staged
+git status
 
-# Push the 'develop' branch and the tag to the new repository
-git push -u origin develop
-git push origin "v$STANDARD_INITIAL_VERSION"
+# Commit the changes, and if nothing is staged, echo a message
+if git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION"; then
+  echo "Commit successful"
+else
+  echo "Nothing to commit"
+fi
 
-# Output the new version
+# Add the new remote repository URL
+git remote add origin "$NEW_REPO_URL" || { echo "Failed to add remote $NEW_REPO_URL"; exit 1; }
+
+# Push the changes to the 'develop' branch and handle errors
+if git push -u origin develop; then
+  echo "Develop branch pushed successfully"
+else
+  echo "Failed to push develop branch"
+fi
+
+# Push the tags if there are any
+if git push --tags; then
+  echo "Tags pushed successfully"
+else
+  echo "Failed to push tags"
+fi
+
+# Output the result
 echo "Repository cloned, cleaned, and initialized with version $STANDARD_INITIAL_VERSION"
