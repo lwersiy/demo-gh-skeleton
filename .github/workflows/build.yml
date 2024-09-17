@@ -33,6 +33,14 @@ jobs:
       - name: List files in the current directory
         run: ls -al
 
+      # Cleanup step to ensure gh-skeleton-new directory does not exist
+      - name: Cleanup any existing gh-skeleton-new directory
+        run: |
+          if [ -d "gh-skeleton-new" ]; then
+            echo "Removing existing 'gh-skeleton-new' directory..."
+            rm -rf gh-skeleton-new
+          fi
+
       # Create a new GitHub repository for gh-skeleton-new
       - name: Create a New Repository
         env:
@@ -58,7 +66,7 @@ jobs:
           git config --global user.name "lwersiy"
           git config --global user.email "petitwerso2003@gmail.com"
 
-      # Clone the new repository and switch to it
+      # Clone the new repository
       - name: Clone the New Remote Repository
         run: |
           echo "Cloning ${{ env.REPO_URL }}..."
@@ -71,12 +79,12 @@ jobs:
           chmod +x bump_version.sh
           ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git ${{ env.REPO_URL }}
 
-      # Push the changes and tags to the new repository
+      # Verify the changes have been applied and tagged
       - name: Push to new repository
         run: |
           cd gh-skeleton-new
           git branch -M develop  # Ensure the develop branch exists
           git add .
-          git commit -m "Initial commit with version 0.0.1"
+          git commit -m "Initial commit with version 0.0.1" || echo "Nothing to commit"
           git push -u origin develop
           git push --tags
