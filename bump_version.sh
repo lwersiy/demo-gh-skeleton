@@ -11,16 +11,14 @@ if [ "$#" -lt 2 ]; then
   usage
 fi
 
-# Variables for existing and new repository URLs
+
 EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
 echo "Cloning the existing repository: $EXISTING_REPO_URL"
 
-# Clone the existing repository into a new directory
 git clone "$EXISTING_REPO_URL" gh-skeleton-one || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
 
-# Move into the newly created directory
 cd gh-skeleton-one || { echo "Failed to enter gh-skeleton-one directory"; exit 1; }
 
 echo "Listing files in gh-skeleton-one directory:"
@@ -30,11 +28,9 @@ ls -al  # Ensure the cloned files are present
 echo "Reinitializing the repository..."
 rm -rf .git && git init || { echo "Failed to initialize new git repo"; exit 1; }
 
-# Configure Git user name and email for this repository
-git config user.email "petitwerso2003@gmail.com"
-git config user.name "lwersiy"
+git config user.email "$GIT_USER_EMAIL"
+git config user.name "$GIT_USER_NAME"
 
-# Check for .gitignore that might exclude files
 if [ -f ".gitignore" ]; then
   echo "Found .gitignore file. Contents:"
   cat .gitignore
@@ -50,8 +46,6 @@ git checkout -b develop || git checkout develop || { echo "Failed to create or s
 # Add all files to the staging area
 echo "Staging files..."
 git add . || { echo "Failed to stage files"; exit 1; }
-
-# Check if files were added
 git status
 
 # Commit the changes, and if nothing is staged, echo a message
