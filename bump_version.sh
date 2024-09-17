@@ -15,20 +15,28 @@ fi
 EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
+echo "Cloning the existing repository: $EXISTING_REPO_URL"
+
 # Clone the existing repository into a new directory
 git clone "$EXISTING_REPO_URL" new-gh-skeleton || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
 
 # Move into the newly created directory
 cd new-gh-skeleton || { echo "Failed to enter new-gh-skeleton directory"; exit 1; }
 
+echo "Listing files in new-gh-skeleton directory:"
+ls -al  # Ensure the cloned files are present
+
 # Remove the existing .git directory and reinitialize the Git repository
+echo "Reinitializing the repository..."
 rm -rf .git && git init || { echo "Failed to initialize new git repo"; exit 1; }
 
-# Verify that files are present in the directory
-echo "Verifying files in directory..."
-ls -al
+# Check for .gitignore that might exclude files
+if [ -f ".gitignore" ]; then
+  echo "Found .gitignore file. Contents:"
+  cat .gitignore
+fi
 
-# Create a version file with an initial version if needed
+# Create a version file with an initial version
 STANDARD_INITIAL_VERSION="0.0.1"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 
@@ -36,34 +44,41 @@ echo "$STANDARD_INITIAL_VERSION" > version.txt
 git checkout -b develop || git checkout develop || { echo "Failed to create or switch to develop branch"; exit 1; }
 
 # Add all files to the staging area
+echo "Staging files..."
 git add . || { echo "Failed to stage files"; exit 1; }
 
-# Check the status to verify that files are staged
+# Check if files were added
 git status
 
 # Commit the changes, and if nothing is staged, echo a message
 if git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION"; then
   echo "Commit successful"
 else
-  echo "Nothing to commit"
+  echo "Nothing to commit. Exiting script."
+  exit 1
 fi
 
 # Add the new remote repository URL
 git remote add origin "$NEW_REPO_URL" || { echo "Failed to add remote $NEW_REPO_URL"; exit 1; }
 
-# Push the changes to the 'develop' branch and handle errors
+# Use the MY_PAT token for authentication by modifying the remote URL
+git remote set-url origin "https://${MY_PAT}@github.com/${NEW_REPO_URL#https://github.com/}"
+
+# Push the changes to the 'develop' branch, handling potential push failures
+echo "Pushing the develop branch to the new repository..."
 if git push -u origin develop; then
   echo "Develop branch pushed successfully"
 else
   echo "Failed to push develop branch"
+  exit 1
 fi
 
 # Push the tags if there are any
+echo "Pushing tags..."
 if git push --tags; then
   echo "Tags pushed successfully"
 else
   echo "Failed to push tags"
 fi
 
-# Output the result
 echo "Repository cloned, cleaned, and initialized with version $STANDARD_INITIAL_VERSION"
