@@ -52,6 +52,12 @@ jobs:
           echo "New repository created: $REPO_URL"
           echo "REPO_URL=$REPO_URL" >> $GITHUB_ENV
 
+      # Configure Git user identity
+      - name: Configure Git User
+        run: |
+          git config --global user.name "lwersiy"
+          git config --global user.email "petitwerso2003@gmail.com"
+
       # Clone the new repository and switch to it
       - name: Clone the New Remote Repository
         run: |
@@ -69,5 +75,8 @@ jobs:
       - name: Push to new repository
         run: |
           cd gh-skeleton-new
+          git branch -M develop  # Ensure the develop branch exists
+          git add .
+          git commit -m "Initial commit with version 0.0.1"
           git push -u origin develop
           git push --tags
