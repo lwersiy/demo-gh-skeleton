@@ -83,8 +83,14 @@ jobs:
       - name: Push to new repository
         run: |
           cd new-gh-skeleton
-          git branch -M develop  # Ensure the develop branch exists
+          
+          # Ensure the develop branch exists, and create it if necessary
+          git checkout -b develop || git checkout develop
+          
+          # Add and commit files, handling empty commit cases
           git add .
           git commit -m "Initial commit with version 0.0.1" || echo "Nothing to commit"
+          
+          # Push the develop branch and the tags
           git push -u origin develop
           git push --tags
