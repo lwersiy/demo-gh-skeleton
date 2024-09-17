@@ -141,9 +141,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: .github/workflows
 
       - name: Run tests
         run: npm test
+        working-directory: .github/workflows
 
       - name: List files in the current directory
         run: ls -al
