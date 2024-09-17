@@ -17,11 +17,11 @@ NEW_REPO_URL=$2
 
 echo "Cloning the existing repository: $EXISTING_REPO_URL"
 
-git clone "$EXISTING_REPO_URL" gh-skeleton-one || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
+git clone "$EXISTING_REPO_URL" gh-skeleton-two || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
 
-cd gh-skeleton-one || { echo "Failed to enter gh-skeleton-one directory"; exit 1; }
+cd gh-skeleton-two || { echo "Failed to enter gh-skeleton-two directory"; exit 1; }
 
-echo "Listing files in gh-skeleton-one directory:"
+echo "Listing files in gh-skeleton-two directory:"
 ls -al  # Ensure the cloned files are present
 
 # Remove the existing .git directory and reinitialize the Git repository
