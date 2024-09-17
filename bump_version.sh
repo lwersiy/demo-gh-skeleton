@@ -36,7 +36,7 @@ echo "$STANDARD_INITIAL_VERSION" > version.txt
 git checkout -b develop || git checkout develop || { echo "Failed to create or switch to develop branch"; exit 1; }
 
 # Add all files to the staging area
-git add .
+git add . || { echo "Failed to stage files"; exit 1; }
 
 # Check the status to verify that files are staged
 git status
