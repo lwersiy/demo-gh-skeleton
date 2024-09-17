@@ -44,7 +44,7 @@ jobs:
       # Create a new GitHub repository for new-gh-skeleton
       - name: Create a New Repository
         env:
-          GH_TOKEN: ${{ secrets.MY_PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_REPO_NAME="new-gh-skeleton"
           RESPONSE=$(curl -s -H "Authorization: token $GH_TOKEN" \
@@ -81,6 +81,8 @@ jobs:
 
       # Verify the changes have been applied and tagged
       - name: Push to new repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd new-gh-skeleton
           
@@ -89,7 +91,7 @@ jobs:
           
           # Add and commit files, handling empty commit cases
           git add .
-          git commit -m "Initial commit with version 0.0.1" || echo "Nothing to commit"
+          git commit -m "Initial commit with version 0.0.1" || git commit --allow-empty -m "Initial empty commit"
           
           # Push the develop branch and the tags
           git push -u origin develop || echo "Failed to push develop branch"
