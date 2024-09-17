@@ -33,20 +33,20 @@ jobs:
       - name: List files in the current directory
         run: ls -al
 
-      # Cleanup step to ensure gh-skeleton-new directory does not exist
-      - name: Cleanup any existing gh-skeleton-new directory
+      # Cleanup step to ensure new-gh-skeleton directory does not exist
+      - name: Cleanup any existing new-gh-skeleton directory
         run: |
-          if [ -d "gh-skeleton-new" ]; then
-            echo "Removing existing 'gh-skeleton-new' directory..."
-            rm -rf gh-skeleton-new
+          if [ -d "new-gh-skeleton" ]; then
+            echo "Removing existing 'new-gh-skeleton' directory..."
+            rm -rf new-gh-skeleton
           fi
 
-      # Create a new GitHub repository for gh-skeleton-new
+      # Create a new GitHub repository for new-gh-skeleton
       - name: Create a New Repository
         env:
           GH_TOKEN: ${{ secrets.MY_PAT }}
         run: |
-          NEW_REPO_NAME="gh-skeleton-new"
+          NEW_REPO_NAME="new-gh-skeleton"
           RESPONSE=$(curl -s -H "Authorization: token $GH_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                -d "{\"name\":\"$NEW_REPO_NAME\"}" \
@@ -66,12 +66,12 @@ jobs:
           git config --global user.name "lwersiy"
           git config --global user.email "petitwerso2003@gmail.com"
 
-      # Clone the new repository
+      # Clone the new repository and switch to it
       - name: Clone the New Remote Repository
         run: |
           echo "Cloning ${{ env.REPO_URL }}..."
           git clone "${{ env.REPO_URL }}"
-          cd gh-skeleton-new
+          cd new-gh-skeleton
 
       # Run the bump_version.sh script to clone, clean, and push the skeleton repo
       - name: Run bump_version.sh Script
@@ -82,7 +82,7 @@ jobs:
       # Verify the changes have been applied and tagged
       - name: Push to new repository
         run: |
-          cd gh-skeleton-new
+          cd new-gh-skeleton
           git branch -M develop  # Ensure the develop branch exists
           git add .
           git commit -m "Initial commit with version 0.0.1" || echo "Nothing to commit"
