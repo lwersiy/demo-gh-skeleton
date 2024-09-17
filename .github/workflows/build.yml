@@ -92,5 +92,5 @@ jobs:
           git commit -m "Initial commit with version 0.0.1" || echo "Nothing to commit"
           
           # Push the develop branch and the tags
-          git push -u origin develop
+          git push -u origin develop || echo "Failed to push develop branch"
           git push --tags
