@@ -22,22 +22,22 @@ EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 BRANCH=${3:-develop}  # Default to 'develop' branch if not provided
 
-# Clone the existing repository
-if ! git clone "$EXISTING_REPO_URL" gh-skeleton-new; then
-  echo "Error: Failed to clone repository from $EXISTING_REPO_URL"
-  exit 1
+# Check if the 'gh-skeleton-new' directory exists and is not empty
+if [ -d "gh-skeleton-new" ]; then
+  if [ "$(ls -A gh-skeleton-new)" ]; then
+    echo "Error: Directory 'gh-skeleton-new' already exists and is not empty. Please remove it or use a different name."
+    exit 1
+  fi
 fi
 
-cd gh-skeleton-new || { echo "Error: Directory gh-skeleton-new does not exist"; exit 1; }
+# Clone the existing repository
+git clone "$EXISTING_REPO_URL" gh-skeleton-new || { echo "Error: Failed to clone repository from $EXISTING_REPO_URL"; exit 1; }
+
+# Move into the cloned directory
+cd gh-skeleton-new || { echo "Error: Failed to change directory to 'gh-skeleton-new'"; exit 1; }
 
 # Remove old git history and reinitialize a new repository
-rm -rf .git && git init
-
-# Check if initialization succeeded
-if [ $? -ne 0 ]; then
-  echo "Error: Git initialization failed."
-  exit 1
-fi
+rm -rf .git && git init || { echo "Error: Failed to initialize a new Git repository"; exit 1; }
 
 # Set up the default branch (allow custom branch input)
 git checkout -b "$BRANCH" || { echo "Error: Failed to create and switch to branch $BRANCH"; exit 1; }
