@@ -23,15 +23,19 @@ rm -rf .git && git init
 # Set up the default branch to 'develop' instead of 'master'
 git checkout -b develop
 
+# Add all files from the cloned repository to the new Git history
+git add .
+
+# Commit the files from the original repository
+git commit -m "Initial commit with version 0.0.1"
+
 # Create a version file with an initial version
 STANDARD_INITIAL_VERSION="0.0.1"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 
-# Ensure version.txt is staged
+# Stage and commit the version.txt file
 git add version.txt
-
-# Commit files or make an empty commit if necessary
-git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION" || git commit --allow-empty -m "Initial empty commit to develop branch"
+git commit -m "Add version.txt with initial version $STANDARD_INITIAL_VERSION"
 
 # Add a tag with the new version v0.0.1
 git tag "v$STANDARD_INITIAL_VERSION"
@@ -40,7 +44,7 @@ git tag "v$STANDARD_INITIAL_VERSION"
 git remote add origin "$NEW_REPO_URL"
 
 # Push the 'develop' branch and the tag to the new repository
-git push -u origin develop || echo "Failed to push develop branch"
+git push -u origin develop
 git push origin "v$STANDARD_INITIAL_VERSION"
 
 # Output the new version
