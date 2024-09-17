@@ -30,6 +30,10 @@ ls -al  # Ensure the cloned files are present
 echo "Reinitializing the repository..."
 rm -rf .git && git init || { echo "Failed to initialize new git repo"; exit 1; }
 
+# Configure Git user name and email for this repository
+git config user.email "petitwerso2003@gmail.com"
+git config user.name "lwersiy"
+
 # Check for .gitignore that might exclude files
 if [ -f ".gitignore" ]; then
   echo "Found .gitignore file. Contents:"
