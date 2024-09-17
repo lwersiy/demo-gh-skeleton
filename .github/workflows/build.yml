@@ -14,37 +14,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the code from the original repository
-      - uses: actions/checkout@v3
+      # Checkout the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
+      # Set up Node.js (if needed for your project)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '14'
 
+      # Install any dependencies (adjust the working-directory if needed)
       - name: Install dependencies
         run: npm install
         working-directory: .github/workflows
 
-      - name: Run tests
-        run: npm test
-        working-directory: .github/workflows
-
+      # List files in the repository to verify content
       - name: List files in the current directory
         run: ls -al
 
-      # Cleanup step to ensure new-gh-skeleton directory does not exist
-      - name: Cleanup any existing new-gh-skeleton directory
-        run: |
-          if [ -d "new-gh-skeleton" ]; then
-            echo "Removing existing 'new-gh-skeleton' directory..."
-            rm -rf new-gh-skeleton
-          fi
-
-      # Create a new GitHub repository for new-gh-skeleton
+      # Create a New Repository on GitHub using MY_PAT token for authentication
       - name: Create a New Repository
         env:
-          GH_TOKEN: ${{ secrets.MY_PAT }}
+          GH_TOKEN: ${{ secrets.MY_PAT }}  # Use MY_PAT as the GitHub token for authentication
         run: |
           NEW_REPO_NAME="new-gh-skeleton"
           RESPONSE=$(curl -s -H "Authorization: token $GH_TOKEN" \
@@ -60,39 +52,15 @@ jobs:
           echo "New repository created: $REPO_URL"
           echo "REPO_URL=$REPO_URL" >> $GITHUB_ENV
 
-      # Configure Git user identity
-      - name: Configure Git User
-        run: |
-          git config --global user.name "lwersiy"
-          git config --global user.email "petitwerso2003@gmail.com"
-
-      # Clone the new repository and switch to it
-      - name: Clone the New Remote Repository
-        run: |
-          echo "Cloning ${{ env.REPO_URL }}..."
-          git clone "${{ env.REPO_URL }}"
-          cd new-gh-skeleton
-
-      # Run the bump_version.sh script to clone, clean, and push the skeleton repo
+      # Run the bump_version.sh script to clone, clean, and push the new repository
       - name: Run bump_version.sh Script
+        env:
+          MY_PAT: ${{ secrets.MY_PAT }}  # Use MY_PAT token for pushing changes
         run: |
           chmod +x bump_version.sh
           ./bump_version.sh https://github.com/lwersiy/gh-skeleton.git ${{ env.REPO_URL }}
 
-      # Verify the changes have been applied and tagged
-      - name: Push to new repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd new-gh-skeleton
-          
-          # Ensure the develop branch exists, and create it if necessary
-          git checkout -b develop || git checkout develop
-          
-          # Add and commit files, handling empty commit cases
-          git add .
-          git commit -m "Initial commit with version 0.0.1" || echo "Nothing to commit"
-          
-          # Push the develop branch and the tags
-          git push -u origin develop || echo "Failed to push develop branch"
-          git push --tags
+      # Optional: Run additional tests
+      - name: Run tests
+        run: npm test
+        working-directory: .github/workflows
