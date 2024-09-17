@@ -27,13 +27,11 @@ git checkout -b develop
 STANDARD_INITIAL_VERSION="0.0.1"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 
-# Check if there is anything to commit, add version.txt if nothing else
-if git status --porcelain | grep -q 'version.txt'; then
-  git add version.txt
-fi
+# Ensure version.txt is staged
+git add version.txt
 
-# Make sure to commit the file, or it will fail
-git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION" || echo "Nothing to commit"
+# Commit files or make an empty commit if necessary
+git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION" || git commit --allow-empty -m "Initial empty commit to develop branch"
 
 # Add a tag with the new version v0.0.1
 git tag "v$STANDARD_INITIAL_VERSION"
