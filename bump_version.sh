@@ -27,8 +27,12 @@ git checkout -b develop
 STANDARD_INITIAL_VERSION="0.0.1"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 
-# Add all files and commit
-git add .
+# Check if there is anything to commit, add version.txt if nothing else
+if git status --porcelain | grep -q 'version.txt'; then
+  git add version.txt
+fi
+
+# Make sure to commit the file, or it will fail
 git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION" || echo "Nothing to commit"
 
 # Add a tag with the new version v0.0.1
@@ -38,7 +42,7 @@ git tag "v$STANDARD_INITIAL_VERSION"
 git remote add origin "$NEW_REPO_URL"
 
 # Push the 'develop' branch and the tag to the new repository
-git push -u origin develop
+git push -u origin develop || echo "Failed to push develop branch"
 git push origin "v$STANDARD_INITIAL_VERSION"
 
 # Output the new version
