@@ -10,7 +10,7 @@ on:
       new_repo_name:
         description: 'The new repository to create and push changes to'
         required: true
-        default: 'gh-skeleton-three'
+        default: ''
 
 jobs:
   clone-modify-push:
