@@ -1,12 +1,10 @@
-name: Auto Clone, Modify, and Push
+name: Auto Clone, Set Version, and Push
 
 on:
-  workflow_dispatch:
-    inputs:
-      source_repo:
-        description: 'The existing repository to clone from'
-        required: true
-        default: 'gh-skeleton'
+  push:
+    branches:
+      - main
+      - develop
 
 jobs:
   clone-modify-push:
@@ -17,22 +15,17 @@ jobs:
         run: |
           sudo apt-get install gh
 
-      - name: Authenticate with GitHub using PAT
-        run: |
-          echo "${{ secrets.MY_PAT }}" | gh auth login --with-token
-
-      # Step 1: Clone the existing repository (input from workflow_dispatch)
+      # Step 1: Clone the existing repository (input from push event)
       - name: Clone the existing repository
         run: |
           echo "Cloning the existing repository..."
-          gh repo clone "lwersiy/${{ github.event.inputs.source_repo }}" my-local-repo
+          gh repo clone "lwersiy/gh-skeleton" my-local-repo
         working-directory: ./  # Working in the root folder or as required
 
       # Step 2: Create a new GitHub repository dynamically
       - name: Create a new repository dynamically
         run: |
-          SOURCE_REPO="${{ github.event.inputs.source_repo }}"
-          TARGET_REPO="${SOURCE_REPO}-new-$(date +%s)"  # Dynamically create a new repo name with a timestamp
+          TARGET_REPO="${{ github.event.repository.name }}-new"
           echo "Creating new repository: $TARGET_REPO"
           RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.MY_PAT }}" \
                -H "Accept: application/vnd.github.v3+json" \
@@ -47,27 +40,19 @@ jobs:
           echo "New repository created: $REPO_URL"
           echo "REPO_URL=$REPO_URL" >> $GITHUB_ENV
           echo "TARGET_REPO=$TARGET_REPO" >> $GITHUB_ENV
-        env:
-          GH_TOKEN: ${{ secrets.MY_PAT }}
 
-      # Step 3: Modify the repository using bump_version.sh
-      - name: Run bump_version.sh to modify repository
+      # Step 3: Run bump_version.sh to set version and push to the new repository
+      - name: Run bump_version.sh to set initial version
         run: |
           chmod +x my-local-repo/bump_version.sh
-          ./my-local-repo/bump_version.sh https://github.com/lwersiy/${{ github.event.inputs.source_repo }}.git ${{ env.REPO_URL }}
+          ./my-local-repo/bump_version.sh https://github.com/lwersiy/gh-skeleton.git ${{ env.REPO_URL }}
 
-      # Step 4: Configure Git identity using secrets
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
-          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
-
-      # Step 5: Push the changes to the new repository
-      - name: Push changes to new repository
+      # Step 4: Push changes (including version.txt) to the new repository
+      - name: Push version changes to new repository
         run: |
           cd my-local-repo
           git add .
-          git commit -m "Initial commit with version bump"
+          git commit -m "Set initial version to 0.0.1"
           git push -u origin develop
         env:
           GIT_COMMITTER_NAME: ${{ secrets.GIT_USER_NAME }}
