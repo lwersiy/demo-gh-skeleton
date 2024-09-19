@@ -1,0 +1,57 @@
+name: Auto Clone, Modify, and Push
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: 'The existing repository to clone from'
+        required: true
+        default: 'gh-skeleton'
+      new_repo_name:
+        description: 'The new repository to create and push changes to'
+        required: true
+        default: 'gh-skeleton-three'
+
+jobs:
+  clone-modify-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up GitHub CLI
+        run: |
+          sudo apt-get install gh
+
+      - name: Authenticate with GitHub using PAT
+        run: |
+          echo "${{ secrets.MY_PAT }}" | gh auth login --with-token
+
+      # Step 1: Clone the existing repository (input from workflow_dispatch)
+      - name: Clone the existing repository
+        run: |
+          echo "Cloning the existing repository..."
+          gh repo clone "username/${{ github.event.inputs.source_repo }}" my-local-repo
+        working-directory: ./  # Working in the root folder or as required
+
+      # Step 2: Create a new GitHub repository (input from workflow_dispatch)
+      - name: Create a new repository
+        run: |
+          echo "Creating a new repository on GitHub..."
+          gh repo create username/${{ github.event.inputs.new_repo_name }} --public --confirm
+        working-directory: ./  # Adjust the working directory if needed
+
+      # Step 3: Modify the repository using bump_version.sh
+      - name: Run bump_version.sh to modify repository
+        run: |
+          chmod +x my-local-repo/bump_version.sh
+          ./my-local-repo/bump_version.sh https://github.com/username/${{ github.event.inputs.source_repo }}.git https://github.com/lwersiy/${{ github.event.inputs.new_repo_name }}.git
+
+      # Step 4: Push the changes to the new repository
+      - name: Push changes to new repository
+        run: |
+          cd my-local-repo
+          git add .
+          git commit -m "Initial commit with version bump"
+          git push -u origin develop
+        env:
+          GIT_COMMITTER_NAME: GitHub Action
+          GIT_COMMITTER_EMAIL: actions@github.com
