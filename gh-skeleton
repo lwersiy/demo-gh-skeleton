@@ -5,8 +5,8 @@ set -o pipefail
 
 # Defaults
 DEFAULT_BRANCH="develop"
-DEST_ORG="cisagov"
-SRC_ORG="cisagov"
+DEST_ORG="lwersiy"
+SRC_ORG="lwersiy"
 
 # Define terminal colors for use in logger functions.
 BLUE="\x1B[34m"
