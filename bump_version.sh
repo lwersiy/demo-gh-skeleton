@@ -1,47 +1,82 @@
 #!/bin/bash
 
-# Arguments: source repo and new repo name
-SOURCE_REPO=$1
-NEW_REPO=$2
+# Function to display usage information
+usage() {
+  echo "Usage: $0 existing-repo-url new-repo-url"
+  exit 1
+}
 
-# Validate inputs
-if [ -z "$SOURCE_REPO" ] || [ -z "$NEW_REPO" ]; then
-  echo "Usage: $0 <source-repo> <new-repo-name>"
+# Check for proper arguments
+if [ "$#" -lt 2 ]; then
+  usage
+fi
+
+
+EXISTING_REPO_URL=$1
+NEW_REPO_URL=$2
+
+echo "Cloning the existing repository: $EXISTING_REPO_URL"
+
+git clone "$EXISTING_REPO_URL" gh-skeleton-two || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
+
+cd gh-skeleton-two || { echo "Failed to enter gh-skeleton-two directory"; exit 1; }
+
+echo "Listing files in gh-skeleton-two directory:"
+ls -al  # Ensure the cloned files are present
+
+# Remove the existing .git directory and reinitialize the Git repository
+echo "Reinitializing the repository..."
+rm -rf .git && git init || { echo "Failed to initialize new git repo"; exit 1; }
+
+git config user.email "$GIT_USER_EMAIL"
+git config user.name "$GIT_USER_NAME"
+
+if [ -f ".gitignore" ]; then
+  echo "Found .gitignore file. Contents:"
+  cat .gitignore
+fi
+
+# Create a version file with an initial version
+STANDARD_INITIAL_VERSION="0.0.1"
+echo "$STANDARD_INITIAL_VERSION" > version.txt
+
+# Ensure the develop branch exists or create it if it doesn't
+git checkout -b develop || git checkout develop || { echo "Failed to create or switch to develop branch"; exit 1; }
+
+# Add all files to the staging area
+echo "Staging files..."
+git add . || { echo "Failed to stage files"; exit 1; }
+git status
+
+# Commit the changes, and if nothing is staged, echo a message
+if git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION"; then
+  echo "Commit successful"
+else
+  echo "Nothing to commit. Exiting script."
   exit 1
 fi
 
-# Clone the existing repository
-echo "Cloning repository $SOURCE_REPO into $NEW_REPO..."
-gh repo clone "lwersiy/$SOURCE_REPO" $NEW_REPO
+# Add the new remote repository URL
+git remote add origin "$NEW_REPO_URL" || { echo "Failed to add remote $NEW_REPO_URL"; exit 1; }
 
-# Navigate into the cloned repository
-cd $NEW_REPO || exit
+# Use the MY_PAT token for authentication by modifying the remote URL
+git remote set-url origin "https://${MY_PAT}@github.com/${NEW_REPO_URL#https://github.com/}"
 
-# Remove the Git history to reinitialize it as a fresh repository
-echo "Removing Git history..."
-rm -rf .git
+# Push the changes to the 'develop' branch, handling potential push failures
+echo "Pushing the develop branch to the new repository..."
+if git push -u origin develop; then
+  echo "Develop branch pushed successfully"
+else
+  echo "Failed to push develop branch"
+  exit 1
+fi
 
-# Reinitialize the repository as a fresh Git repository
-echo "Reinitializing the repository..."
-git init
+# Push the tags if there are any
+echo "Pushing tags..."
+if git push --tags; then
+  echo "Tags pushed successfully"
+else
+  echo "Failed to push tags"
+fi
 
-# Create a version file with STANDARD_INITIAL_VERSION
-STANDARD_INITIAL_VERSION="0.0.1"
-echo "$STANDARD_INITIAL_VERSION" > version.txt
-git add version.txt
-git commit -m "Set initial version to $STANDARD_INITIAL_VERSION"
-
-# Create a new repository on GitHub using the GitHub CLI
-echo "Creating new repository on GitHub: $NEW_REPO..."
-gh repo create lwersiy/$NEW_REPO --public --confirm
-
-# Add the new remote repository
-echo "Adding new repository as remote..."
-git remote add origin https://github.com/lwersiy/$NEW_REPO.git
-
-# Push to the develop branch instead of main
-echo "Pushing the repository to GitHub on the develop branch..."
-git branch -M develop
-git push -u origin develop
-
-echo "Repository $NEW_REPO created and pushed successfully on the develop branch."
+echo "Repository cloned, cleaned, and initialized with version $STANDARD_INITIAL_VERSION"
