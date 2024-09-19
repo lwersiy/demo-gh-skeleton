@@ -1,27 +1,47 @@
 #!/bin/bash
 
-# Arguments: existing repo URL and new repo URL
-EXISTING_REPO_URL=$1
-NEW_REPO_URL=$2
+# Arguments: source repo and new repo name
+SOURCE_REPO=$1
+NEW_REPO=$2
 
-STANDARD_INITIAL_VERSION="0.0.1"
+# Validate inputs
+if [ -z "$SOURCE_REPO" ] || [ -z "$NEW_REPO" ]; then
+  echo "Usage: $0 <source-repo> <new-repo-name>"
+  exit 1
+fi
 
 # Clone the existing repository
-echo "Cloning the existing repository: $EXISTING_REPO_URL"
-git clone "$EXISTING_REPO_URL" new-repo
-cd new-repo
+echo "Cloning repository $SOURCE_REPO into $NEW_REPO..."
+gh repo clone "lwersiy/$SOURCE_REPO" $NEW_REPO
 
-# Reinitialize the repository (remove the old Git history)
-echo "Reinitializing the repository..."
+# Navigate into the cloned repository
+cd $NEW_REPO || exit
+
+# Remove the Git history to reinitialize it as a fresh repository
+echo "Removing Git history..."
 rm -rf .git
+
+# Reinitialize the repository as a fresh Git repository
+echo "Reinitializing the repository..."
 git init
 
-# Set the initial version in a version.txt file
+# Create a version file with STANDARD_INITIAL_VERSION
+STANDARD_INITIAL_VERSION="0.0.1"
 echo "$STANDARD_INITIAL_VERSION" > version.txt
 git add version.txt
 git commit -m "Set initial version to $STANDARD_INITIAL_VERSION"
 
-# Add the new repository as remote and push
-git remote add origin "$NEW_REPO_URL"
+# Create a new repository on GitHub using the GitHub CLI
+echo "Creating new repository on GitHub: $NEW_REPO..."
+gh repo create lwersiy/$NEW_REPO --public --confirm
+
+# Add the new remote repository
+echo "Adding new repository as remote..."
+git remote add origin https://github.com/lwersiy/$NEW_REPO.git
+
+# Push to the develop branch instead of main
+echo "Pushing the repository to GitHub on the develop branch..."
 git branch -M develop
 git push -u origin develop
+
+echo "Repository $NEW_REPO created and pushed successfully on the develop branch."
