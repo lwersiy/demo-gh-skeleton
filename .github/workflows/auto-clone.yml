@@ -29,21 +29,21 @@ jobs:
       - name: Clone the existing repository
         run: |
           echo "Cloning the existing repository..."
-          gh repo clone "username/${{ github.event.inputs.source_repo }}" my-local-repo
+          gh repo clone "lwersiy/${{ github.event.inputs.source_repo }}" my-local-repo
         working-directory: ./  # Working in the root folder or as required
 
       # Step 2: Create a new GitHub repository (input from workflow_dispatch)
       - name: Create a new repository
         run: |
           echo "Creating a new repository on GitHub..."
-          gh repo create username/${{ github.event.inputs.new_repo_name }} --public --confirm
+          gh repo create lwersiy/${{ github.event.inputs.new_repo_name }} --public --confirm
         working-directory: ./  # Adjust the working directory if needed
 
       # Step 3: Modify the repository using bump_version.sh
       - name: Run bump_version.sh to modify repository
         run: |
           chmod +x my-local-repo/bump_version.sh
-          ./my-local-repo/bump_version.sh https://github.com/username/${{ github.event.inputs.source_repo }}.git https://github.com/lwersiy/${{ github.event.inputs.new_repo_name }}.git
+          ./my-local-repo/bump_version.sh https://github.com/lwersiy/${{ github.event.inputs.source_repo }}.git https://github.com/lwersiy/${{ github.event.inputs.new_repo_name }}.git
 
       # Step 4: Push the changes to the new repository
       - name: Push changes to new repository
