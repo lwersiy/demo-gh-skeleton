@@ -28,7 +28,7 @@ jobs:
           gh repo clone "lwersiy/${{ github.event.inputs.source_repo }}" my-local-repo
         working-directory: ./  # Working in the root folder or as required
 
-      # Step 2: Create a new GitHub repository based on the source repo name with a unique suffix
+      # Step 2: Create a new GitHub repository dynamically
       - name: Create a new repository dynamically
         run: |
           SOURCE_REPO="${{ github.event.inputs.source_repo }}"
@@ -41,12 +41,14 @@ jobs:
           echo "$RESPONSE"
           REPO_URL=$(echo "$RESPONSE" | grep -oP '"clone_url": "\K[^"]+')
           if [ -z "$REPO_URL" ]; then
-            echo "Failed to create repository. Exiting..."
+            echo "Failed to create repository or fetch clone_url. Exiting..."
             exit 1
           fi
           echo "New repository created: $REPO_URL"
           echo "REPO_URL=$REPO_URL" >> $GITHUB_ENV
           echo "TARGET_REPO=$TARGET_REPO" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.MY_PAT }}
 
       # Step 3: Modify the repository using bump_version.sh
       - name: Run bump_version.sh to modify repository
@@ -54,7 +56,13 @@ jobs:
           chmod +x my-local-repo/bump_version.sh
           ./my-local-repo/bump_version.sh https://github.com/lwersiy/${{ github.event.inputs.source_repo }}.git ${{ env.REPO_URL }}
 
-      # Step 4: Push the changes to the new repository
+      # Step 4: Configure Git identity using secrets
+      - name: Configure Git identity
+        run: |
+          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+
+      # Step 5: Push the changes to the new repository
       - name: Push changes to new repository
         run: |
           cd my-local-repo
@@ -62,5 +70,5 @@ jobs:
           git commit -m "Initial commit with version bump"
           git push -u origin develop
         env:
-          GIT_COMMITTER_NAME: GitHub Action
-          GIT_COMMITTER_EMAIL: actions@github.com
+          GIT_COMMITTER_NAME: ${{ secrets.GIT_USER_NAME }}
+          GIT_COMMITTER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
