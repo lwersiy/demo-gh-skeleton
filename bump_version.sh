@@ -11,30 +11,25 @@ if [ "$#" -lt 2 ]; then
   usage
 fi
 
-
+# Variables for existing and new repository URLs
 EXISTING_REPO_URL=$1
 NEW_REPO_URL=$2
 
 echo "Cloning the existing repository: $EXISTING_REPO_URL"
 
-git clone "$EXISTING_REPO_URL" gh-skeleton-two || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
+# Clone the existing repository into a new directory
+git clone "$EXISTING_REPO_URL" new-repo || { echo "Failed to clone $EXISTING_REPO_URL"; exit 1; }
 
-cd gh-skeleton-two || { echo "Failed to enter gh-skeleton-two directory"; exit 1; }
-
-echo "Listing files in gh-skeleton-two directory:"
-ls -al  # Ensure the cloned files are present
+# Move into the newly created directory
+cd new-repo || { echo "Failed to enter new-repo directory"; exit 1; }
 
 # Remove the existing .git directory and reinitialize the Git repository
 echo "Reinitializing the repository..."
 rm -rf .git && git init || { echo "Failed to initialize new git repo"; exit 1; }
 
-git config user.email "$GIT_USER_EMAIL"
-git config user.name "$GIT_USER_NAME"
-
-if [ -f ".gitignore" ]; then
-  echo "Found .gitignore file. Contents:"
-  cat .gitignore
-fi
+# Configure Git user name and email (passed via GitHub Actions environment)
+git config user.email "${GIT_USER_EMAIL}"
+git config user.name "${GIT_USER_NAME}"
 
 # Create a version file with an initial version
 STANDARD_INITIAL_VERSION="0.0.1"
@@ -46,7 +41,6 @@ git checkout -b develop || git checkout develop || { echo "Failed to create or s
 # Add all files to the staging area
 echo "Staging files..."
 git add . || { echo "Failed to stage files"; exit 1; }
-git status
 
 # Commit the changes, and if nothing is staged, echo a message
 if git commit -m "Initial commit with version $STANDARD_INITIAL_VERSION"; then
@@ -57,26 +51,11 @@ else
 fi
 
 # Add the new remote repository URL
+echo "Adding the new remote repository: $NEW_REPO_URL"
 git remote add origin "$NEW_REPO_URL" || { echo "Failed to add remote $NEW_REPO_URL"; exit 1; }
 
-# Use the MY_PAT token for authentication by modifying the remote URL
-git remote set-url origin "https://${MY_PAT}@github.com/${NEW_REPO_URL#https://github.com/}"
-
-# Push the changes to the 'develop' branch, handling potential push failures
-echo "Pushing the develop branch to the new repository..."
-if git push -u origin develop; then
-  echo "Develop branch pushed successfully"
-else
-  echo "Failed to push develop branch"
-  exit 1
-fi
-
-# Push the tags if there are any
-echo "Pushing tags..."
-if git push --tags; then
-  echo "Tags pushed successfully"
-else
-  echo "Failed to push tags"
-fi
+# Push the changes to the 'develop' branch
+echo "Pushing changes to the new repository..."
+git push -u origin develop || { echo "Failed to push to the new repository"; exit 1; }
 
 echo "Repository cloned, cleaned, and initialized with version $STANDARD_INITIAL_VERSION"
