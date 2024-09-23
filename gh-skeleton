@@ -189,7 +189,7 @@ Please manually create the ${dest_org}/${dest_repo} repository on GitHub.
 Once ${dest_org}/${dest_repo} is created use the following commands to push
 the local repository to the remote and create the initial pull request:
     cd ${CHANGE_DIR:+${CHANGE_DIR}/}${dest_repo}
-    git push origin ${DEFAULT_BRANCH} first-commits --set-upstream
+    git push origin ${DEFAULT_BRANCH} first-commits v0.0.1 --set-upstream
     gh pr create --title "First commits" --assignee=@me --web
 
 END_OF_LINE
