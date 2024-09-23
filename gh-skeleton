@@ -131,6 +131,9 @@ clone_repo() {
   log_info "Committing staged files to the ${DEFAULT_BRANCH} branch."
   git commit --message "Rename repository references after clone"
 
+  log_info "creating initial version tag v0.0.1"
+  git tag v0.0.1
+
   log_info "Creating the lineage.yml file."
   cat << END_OF_LINE > .github/lineage.yml
 ---
@@ -172,7 +175,7 @@ END_OF_LINE
       ;;&
     created | exists)
       log_info "Pushing ${DEFAULT_BRANCH} and first-commit branches to the remote."
-      git push origin "${DEFAULT_BRANCH}" first-commits --set-upstream
+      git push origin "${DEFAULT_BRANCH}" first-commits v0.0.1 --set-upstream
       log_info "Opening a new pull request for the first-commits branch."
       gh pr create --title "First commits" --assignee=@me --web
       ;;
